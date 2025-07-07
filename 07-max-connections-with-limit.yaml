@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nginx
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      containers:
+        - image: nginx:1.14.2
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+            - containerPort: 80
+              protocol: TCP
+              name: server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netshoot
+  labels:
+    app: netshoot
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: netshoot
+  template:
+    metadata:
+      labels:
+        app: netshoot
+      annotations:
+        qos.projectcalico.org/egressMaxConnections: "4"
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      containers:
+        - name: netshoot
+          image: nicolaka/netshoot
+          command: ['/bin/sh', '-c', 'sleep infinity']
+          # To benchmark manually:
+          # kubectl exec netshoot-jlfxq -- /bin/sh -c 'nc nginx 80' # (for a "persistent" connection)
+          # kubectl exec netshoot-jlfxq -- /bin/sh -c 'curl nginx'
