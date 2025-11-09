@@ -28,7 +28,7 @@ spec:
         effect: NoSchedule
       containers:
       - name: iperf3-server
-        image: networkstatic/iperf3
+        image: us-west1-docker.pkg.dev/tigera-marketing/tigera-instruqt/iperf3:latest
         args: ['-s']
         ports:
         - containerPort: 5201
@@ -76,7 +76,7 @@ spec:
         effect: NoSchedule
       containers:
       - name: iperf3-client
-        image: networkstatic/iperf3
+        image: us-west1-docker.pkg.dev/tigera-marketing/tigera-instruqt/iperf3:latest
         command: ['/bin/sh', '-c', 'sleep infinity']
         # To benchmark manually: kubectl exec deploy/iperf3-clients -- /bin/sh -c 'iperf3 -c iperf3-server -O5 [-R]'
       terminationGracePeriodSeconds: 0

@@ -69,7 +69,7 @@ spec:
         effect: NoSchedule
       containers:
         - name: netshoot
-          image: nicolaka/netshoot
+          image: us-west1-docker.pkg.dev/tigera-marketing/tigera-instruqt/netshoot:latest
           command: ['/bin/sh', '-c', 'sleep infinity']
           # To benchmark manually:
           # kubectl exec deploy/netshoot -- /bin/sh -c 'nc nginx 80' # (for a "persistent" connection)
